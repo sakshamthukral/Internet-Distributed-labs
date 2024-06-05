@@ -4,6 +4,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
 # Create your models here.
 class Publisher(models.Model):
     name = models.CharField(max_length=200)
@@ -28,8 +29,10 @@ class Book(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     publisher = models.ForeignKey(Publisher, related_name='books', on_delete=models.CASCADE)
     description = models.TextField(default="No Description Available")
+
     def __str__(self):
         return self.title
+
 
 class Member(User):
     STATUS_CHOICES = [
@@ -45,7 +48,7 @@ class Member(User):
     last_renewal = models.DateField(default=timezone.now)
     auto_renew = models.BooleanField(default=True)
     borrowed_books = models.ManyToManyField(Book, blank=True)
-    address = models.CharField(max_length=300, blank=True, null=True)
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -56,3 +59,9 @@ class Order(models.Model):
     member = models.ForeignKey(Member, related_name='orders', on_delete=models.CASCADE)
     order_type = models.IntegerField(choices=STATUS_CHOICES, default=1)
     date = models.DateField(default=timezone.now)
+
+    def total_items(self):
+        return self.books.count()
+
+    def __str__(self):
+        return f"Order {self.id} by {self.member.username}"
